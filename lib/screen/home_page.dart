@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../service/api_service.dart';
 import 'video_player_page.dart';
-
+import 'reels_page.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -164,9 +164,10 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => VideoPlayerPage(
-                              title: title,
-                              videoUrl: videoUrl,
+                            builder: (_) => ReelsPage(
+                              category: currentCategory,
+                              startIndex: index,
+                              initialList: videos, // ✅ same list pass
                             ),
                           ),
                         );
