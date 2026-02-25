@@ -55,4 +55,21 @@ class ApiService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
+
+  static Future<String?> _accessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("access_token");
+  }
+
+  static Future<List<dynamic>> fetchVideos({required String category}) async {
+    final token = await _accessToken();
+    final res = await http.get(
+      Uri.parse("$baseUrl/api/videos/?category=$category"),
+      headers: {"Authorization": "Bearer $token"},
+    );
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body) as List<dynamic>;
+    }
+    return [];
+  }
 }
