@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'common_grid_page.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class AppShell extends StatefulWidget {
+  const AppShell({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<AppShell> createState() => _AppShellState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _AppShellState extends State<AppShell> {
+  int bottomIndex = 0;
+
+  // Header tabs
   final tabs = const [
     ("POPULAR", "popular"),
     ("MUST WATCH", "must_watch"),
@@ -18,16 +21,25 @@ class _HomePageState extends State<HomePage> {
 
   int tabIndex = 0;
 
+  String _pageCategory() {
+    // bottom nav category mapping
+    if (bottomIndex == 0) return tabs[tabIndex].$2; // Home uses top tab category
+    if (bottomIndex == 1) return "trending";
+    if (bottomIndex == 2) return "vip";
+    if (bottomIndex == 3) return "continue"; // if you want separate endpoint later, you can change
+    return "me"; // profile later
+  }
+
   @override
   Widget build(BuildContext context) {
-    final currentCategory = tabs[tabIndex].$2;
+    final currentCategory = _pageCategory();
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F0F),
       body: SafeArea(
         child: Column(
           children: [
-            // search + dev mode
+            // ✅ Header (fixed)
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
               child: Row(
@@ -60,7 +72,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            // top tabs
+            // ✅ Top tabs (fixed on all pages)
             SizedBox(
               height: 44,
               child: ListView.separated(
@@ -69,7 +81,12 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (_, i) {
                   final selected = i == tabIndex;
                   return InkWell(
-                    onTap: () => setState(() => tabIndex = i),
+                    onTap: () {
+                      setState(() {
+                        tabIndex = i;
+                        bottomIndex = 0; // when top tab clicked, go to Home
+                      });
+                    },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -90,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                             color: selected ? Colors.white : Colors.transparent,
                             borderRadius: BorderRadius.circular(99),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   );
@@ -102,12 +119,38 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 10),
 
-            // ✅ category grid page
+            // ✅ Body (switches by bottom nav)
             Expanded(
-              child: CommonGridPage(category: currentCategory),
-            )
+              child: IndexedStack(
+                index: bottomIndex,
+                children: [
+                  CommonGridPage(category: tabs[tabIndex].$2), // Home category via top tabs
+                  const CommonGridPage(category: "trending"),
+                  const CommonGridPage(category: "vip"),
+                  const CommonGridPage(category: "continue"), // optional: later use /continue endpoint
+                  const CommonGridPage(category: "me"),       // later profile page
+                ],
+              ),
+            ),
           ],
         ),
+      ),
+
+      // ✅ Footer fixed
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: bottomIndex,
+        backgroundColor: const Color(0xFF0F0F0F),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white54,
+        type: BottomNavigationBarType.fixed,
+        onTap: (i) => setState(() => bottomIndex = i),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.local_fire_department), label: "Trending"),
+          BottomNavigationBarItem(icon: Icon(Icons.workspace_premium), label: "VIP"),
+          BottomNavigationBarItem(icon: Icon(Icons.play_circle_fill), label: "Continue"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Me"),
+        ],
       ),
     );
   }

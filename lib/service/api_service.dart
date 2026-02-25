@@ -242,6 +242,12 @@ class ApiService {
   // --------------- Reels Feed (Paged) ---------------
   // GET /api/videos/feed/?page=1&page_size=10&category=popular
 
+  static Future<List<dynamic>> fetchContinue() async {
+    final headers = await _authHeaders(json: false);
+    final res = await http.get(_u("/api/videos/continue/"), headers: headers);
+    if (res.statusCode == 200) return (jsonDecode(res.body) as List);
+    return [];
+  }
   static Future<Map<String, dynamic>> fetchFeed({
     required int page,
     int pageSize = 10,

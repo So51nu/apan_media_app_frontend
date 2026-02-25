@@ -1,7 +1,7 @@
+import 'package:apna_media_app/screen/app_shell.dart';
 import 'package:flutter/material.dart';
 import '../service/api_service.dart';
-import 'home_page.dart';
-
+import 'root_shell.dart';
 class OTPVerifyPage extends StatefulWidget {
   final String email;
   const OTPVerifyPage({super.key, required this.email});
@@ -40,7 +40,7 @@ class _OTPVerifyPageState extends State<OTPVerifyPage> {
     if (ok) {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        MaterialPageRoute(builder: (_) => const AppShell()),
             (_) => false,
       );
     } else {

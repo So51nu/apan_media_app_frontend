@@ -11,10 +11,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Apna Media',
-      home: const LoginPage(), // ✅ always open login first
+      home: LoginPage(),
     );
   }
 }
