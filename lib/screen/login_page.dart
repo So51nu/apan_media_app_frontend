@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../service/api_service.dart';
-import 'home_page.dart';
 import 'otp_verify_page.dart';
+import 'app_shell.dart'; // ✅ add this
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -30,10 +30,14 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> checkLogin() async {
     final loggedIn = await ApiService.isLoggedIn();
-    if (loggedIn && mounted) {
+
+    if (!mounted) return;
+
+    if (loggedIn) {
+      // ✅ FIX: HomePage nahi, same tabs shell open karo
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        MaterialPageRoute(builder: (_) => const AppShell()),
       );
     } else {
       setState(() => loading = false);
@@ -78,7 +82,6 @@ class _LoginPageState extends State<LoginPage> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Top pink header + pattern
             SizedBox(
               height: 320,
               width: double.infinity,
@@ -89,8 +92,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-
-            // White wave
             Positioned(
               top: 210,
               left: 0,
@@ -100,8 +101,6 @@ class _LoginPageState extends State<LoginPage> {
                 child: CustomPaint(painter: WavePainter(color: Colors.white)),
               ),
             ),
-
-            // Content
             SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Padding(
@@ -110,7 +109,6 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 265),
-
                     const Text(
                       "Sign in",
                       style: TextStyle(
@@ -130,7 +128,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 28),
-
                     const Text(
                       "Email",
                       style: TextStyle(
@@ -140,8 +137,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 6),
-
-                    // Email underline field
                     UnderlineField(
                       controller: emailCtrl,
                       hintText: "demo@email.com",
@@ -149,9 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                       keyboardType: TextInputType.emailAddress,
                       underlineColor: pinkDark.withOpacity(0.55),
                     ),
-
                     const SizedBox(height: 18),
-
                     Row(
                       children: [
                         RememberMeTile(
@@ -161,9 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const Spacer(),
                         InkWell(
-                          onTap: () {
-                            // Optional: forgot flow (later)
-                          },
+                          onTap: () {},
                           child: Text(
                             "",
                             style: TextStyle(
@@ -175,10 +166,7 @@ class _LoginPageState extends State<LoginPage> {
                         )
                       ],
                     ),
-
                     const SizedBox(height: 22),
-
-                    // Login button (Send OTP)
                     SizedBox(
                       width: double.infinity,
                       height: 54,
@@ -202,22 +190,17 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 18),
-
-                    // bottom text (same look)
                     Center(
                       child: Text.rich(
                         TextSpan(
                           style: const TextStyle(fontSize: 13, color: Color(0xFF9E9E9E)),
                           children: const [
                             TextSpan(text: ""),
-
                           ],
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 26),
                   ],
                 ),

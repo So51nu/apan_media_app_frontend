@@ -16,7 +16,7 @@ class _RootShellState extends State<RootShell> {
   int index = 0;
 
   final pages = const [
-    HomePage(),
+    HomePage(),       // Make these pages Scaffold-less (below)
     TrendingPage(),
     VipPage(),
     ContinuePage(),
@@ -26,7 +26,11 @@ class _RootShellState extends State<RootShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pages[index],
+      backgroundColor: const Color(0xFF0F0F0F),
+
+      // ✅ keeps state of each tab
+      body: IndexedStack(index: index, children: pages),
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: index,
         backgroundColor: const Color(0xFF0F0F0F),

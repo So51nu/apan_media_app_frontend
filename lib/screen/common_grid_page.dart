@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../service/api_service.dart';
 import 'reels_page.dart';
-
+import 'paywall_page.dart';
 class CommonGridPage extends StatefulWidget {
   final String category; // popular / must_watch / trending / vip / rating / etc.
 
@@ -74,18 +74,36 @@ class _CommonGridPageState extends State<CommonGridPage> {
           return InkWell(
             onTap: (videoUrl == null || videoUrl.isEmpty)
                 ? null
-                : () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ReelsPage(
-                    category: widget.category,
-                    startIndex: index,
-                    initialList: videos,
+                : () async {
+              final videoId = (v["id"] as int);
+
+              final r = await ApiService.watchStart(videoId);
+
+              if (r["allowed"] == true) {
+                if (!context.mounted) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ReelsPage(
+                      category: widget.category,
+                      startIndex: index,
+                      initialList: videos,
+                    ),
                   ),
-                ),
-              );
+                );
+              } else {
+                if (!context.mounted) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaywallPage(
+                      reason: r["reason"]?.toString() ?? "PAYWALL",
+                    ),
+                  ),
+                );
+              }
             },
+
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

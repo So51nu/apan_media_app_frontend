@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../service/api_service.dart';
 import 'reels_player_item.dart';
+import 'paywall_page.dart';
 
 class ReelsPage extends StatefulWidget {
   final String category;
   final int startIndex;
-  final List<dynamic>? initialList; // optional (home se pass karoge)
+  final List<dynamic>? initialList;
 
   const ReelsPage({
     super.key,
@@ -27,9 +28,13 @@ class _ReelsPageState extends State<ReelsPage> {
   bool _hasMore = true;
   bool _fetching = false;
 
+  int _currentIndex = 0;
+  bool _checkingGate = false;
+
   @override
   void initState() {
     super.initState();
+    _currentIndex = widget.startIndex;
     _pc = PageController(initialPage: widget.startIndex);
     _initLoad();
   }
@@ -37,18 +42,21 @@ class _ReelsPageState extends State<ReelsPage> {
   Future<void> _initLoad() async {
     setState(() => _loading = true);
 
-    // ✅ If Home passed initial list, use it first (fast)
     if (widget.initialList != null && widget.initialList!.isNotEmpty) {
       _videos
         ..clear()
         ..addAll(widget.initialList!.cast<Map<String, dynamic>>());
       setState(() => _loading = false);
-      // Also start prefetch in background (optional)
+
+      // ✅ Gate check for first video
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _gateCheckAt(_currentIndex);
+      });
+
       _prefetchIfShort();
       return;
     }
 
-    // Otherwise fetch from feed
     final data = await ApiService.fetchFeed(page: 1, pageSize: 10, category: widget.category);
     final results = (data["results"] as List).cast<Map<String, dynamic>>();
 
@@ -60,6 +68,10 @@ class _ReelsPageState extends State<ReelsPage> {
       _hasMore = data["has_more"] == true;
       _page = 1;
       _loading = false;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _gateCheckAt(_currentIndex);
     });
   }
 
@@ -86,11 +98,71 @@ class _ReelsPageState extends State<ReelsPage> {
     _fetching = false;
   }
 
+  // ✅ MAIN FIX: every time user changes video, gate-check that video
+  Future<void> _gateCheckAt(int index) async {
+    if (_checkingGate) return;
+    if (index < 0 || index >= _videos.length) return;
+
+    final v = _videos[index];
+    final videoId = (v["id"] as int?);
+
+    if (videoId == null) return;
+
+    _checkingGate = true;
+
+    final r = await ApiService.watchStart(videoId);
+
+    if (!mounted) return;
+
+    if (r["allowed"] == true) {
+      _checkingGate = false;
+      return;
+    }
+
+    // ❌ Not allowed => open Paywall
+    final unlocked = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PaywallPage(
+          reason: r["reason"]?.toString() ?? "PAYWALL",
+        ),
+      ),
+    );
+
+    // If not unlocked => force back to previous allowed video
+    if (unlocked != true) {
+      final backTo = _currentIndex;
+      _pc.animateToPage(
+        backTo,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    } else {
+      // ✅ unlocked => allow this video now
+      // run gate-check again just in case (will return allowed)
+      await Future.delayed(const Duration(milliseconds: 150));
+      await _gateCheckAt(index);
+    }
+
+    _checkingGate = false;
+  }
+
   void _onPageChanged(int i) {
-    // near end -> load more
+    // load more near end
     if (i >= _videos.length - 3) {
       _loadMore();
     }
+
+    // ✅ gate check
+    final prev = _currentIndex;
+    _currentIndex = i;
+    _gateCheckAt(i).then((_) {
+      // if paywall bounced, index may revert
+      if (!mounted) return;
+      if (_pc.hasClients) {
+        // keep safe
+      }
+    });
   }
 
   @override

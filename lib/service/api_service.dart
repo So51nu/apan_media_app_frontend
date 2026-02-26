@@ -123,7 +123,13 @@ class ApiService {
     await prefs.setString(_kAccess, access);
     await prefs.setString(_kRefresh, refresh);
   }
-
+  static Future<Map<String, dynamic>> createCancelFeeOrder() async {
+    final res = await http.post(
+      _u("/api/payments/cancel-fee-order/"),
+      headers: await _authHeaders(json: true),
+    );
+    return jsonDecode(res.body) as Map<String, dynamic>;
+  }
   static Future<Map<String, String>> _authHeaders({bool json = true}) async {
     final token = await _accessToken();
     final headers = <String, String>{
@@ -291,6 +297,40 @@ class ApiService {
   //  share_increment: true
   //  last_position_ms: int
 
+  static Future<Map<String, dynamic>> watchStart(int videoId) async {
+    final res = await http.post(
+      _u("/api/watch/start/"),
+      headers: await _authHeaders(json: true),
+      body: jsonEncode({"video_id": videoId}),
+    );
+    return jsonDecode(res.body) as Map<String, dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> createOrder(int amount) async {
+    final res = await http.post(
+      _u("/api/payments/create-order/"),
+      headers: await _authHeaders(json: true),
+      body: jsonEncode({"amount": amount}),
+    );
+    return jsonDecode(res.body) as Map<String, dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> verifyPayment(Map<String, dynamic> payload) async {
+    final res = await http.post(
+      _u("/api/payments/verify/"),
+      headers: await _authHeaders(json: true),
+      body: jsonEncode(payload),
+    );
+    return jsonDecode(res.body) as Map<String, dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> createSubscription() async {
+    final res = await http.post(
+      _u("/api/payments/create-subscription/"),
+      headers: await _authHeaders(json: true),
+    );
+    return jsonDecode(res.body) as Map<String, dynamic>;
+  }
   static Future<Map<String, dynamic>?> react({
     required int videoId,
     int? likeStatus,

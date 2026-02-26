@@ -6,9 +6,8 @@ class TrendingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFF0F0F0F),
-      body: SafeArea(child: CommonGridPage(category: "trending")),
+    return const SafeArea(
+      child: CommonGridPage(category: "trending"),
     );
   }
 }

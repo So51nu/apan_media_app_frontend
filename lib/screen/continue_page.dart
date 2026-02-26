@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../service/api_service.dart';
 import 'reels_page.dart';
+import 'paywall_page.dart';
 
 class ContinuePage extends StatefulWidget {
   const ContinuePage({super.key});
@@ -10,8 +11,8 @@ class ContinuePage extends StatefulWidget {
 }
 
 class _ContinuePageState extends State<ContinuePage> {
-  bool loading = true;
   List<dynamic> videos = [];
+  bool loading = true;
 
   @override
   void initState() {
@@ -31,41 +32,36 @@ class _ContinuePageState extends State<ContinuePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F0F0F),
-      body: SafeArea(
-        child: loading
-            ? const Center(child: CircularProgressIndicator())
-            : videos.isEmpty
-            ? Center(
-          child: TextButton(
-            onPressed: _load,
-            child: const Text("Nothing to continue", style: TextStyle(color: Colors.white)),
-          ),
-        )
-            : ListView.builder(
-          padding: const EdgeInsets.all(14),
-          itemCount: videos.length,
-          itemBuilder: (_, index) {
-            final v = videos[index];
-            final title = (v["title"] ?? "").toString();
-            final thumb = v["thumbnail_url"]?.toString();
+    if (loading) return const Center(child: CircularProgressIndicator());
+    if (videos.isEmpty) {
+      return const Center(child: Text("No continue videos", style: TextStyle(color: Colors.white70)));
+    }
 
-            return ListTile(
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  color: Colors.white12,
-                  child: thumb == null
-                      ? const Icon(Icons.movie, color: Colors.white38)
-                      : Image.network(thumb, fit: BoxFit.cover),
-                ),
-              ),
-              title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
-              subtitle: const Text("Continue watching", style: TextStyle(color: Colors.white60)),
-              onTap: () {
+    // ✅ reuse same grid look quickly
+    return SafeArea(
+      child: GridView.builder(
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 0.62,
+        ),
+        itemCount: videos.length,
+        itemBuilder: (_, index) {
+          final v = videos[index];
+          final thumb = v["thumbnail_url"]?.toString();
+          final title = (v["title"] ?? "").toString();
+          final videoUrl = v["video_url"]?.toString();
+          final videoId = (v["id"] as int);
+
+          return InkWell(
+            onTap: (videoUrl == null || videoUrl.isEmpty)
+                ? null
+                : () async {
+              final r = await ApiService.watchStart(videoId);
+              if (r["allowed"] == true) {
+                if (!context.mounted) return;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -76,10 +72,29 @@ class _ContinuePageState extends State<ContinuePage> {
                     ),
                   ),
                 );
-              },
-            );
-          },
-        ),
+              } else {
+                if (!context.mounted) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaywallPage(
+                      reason: r["reason"]?.toString() ?? "PAYWALL",
+                    ),
+                  ),
+                );
+              }
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                color: Colors.white.withOpacity(0.08),
+                child: thumb == null
+                    ? const Center(child: Icon(Icons.movie, color: Colors.white38))
+                    : Image.network(thumb, fit: BoxFit.cover),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

@@ -22,92 +22,98 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final currentCategory = tabs[tabIndex].$2;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F0F0F),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // search + dev mode
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withOpacity(0.08)),
-                      ),
-                      child: const Row(
-                        children: [
-                          SizedBox(width: 12),
-                          Icon(Icons.search, color: Colors.white60),
-                          SizedBox(width: 10),
-                          Text("Search...", style: TextStyle(color: Colors.white54, fontSize: 14)),
-                        ],
-                      ),
+    return SafeArea(
+      child: Column(
+        children: [
+          // ✅ Top search + DEV MODE
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white.withOpacity(0.08)),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(color: Colors.redAccent, borderRadius: BorderRadius.circular(18)),
-                    child: const Text("DEV MODE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
-                  ),
-                ],
-              ),
-            ),
-
-            // top tabs
-            SizedBox(
-              height: 44,
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (_, i) {
-                  final selected = i == tabIndex;
-                  return InkWell(
-                    onTap: () => setState(() => tabIndex = i),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    child: const Row(
                       children: [
+                        SizedBox(width: 12),
+                        Icon(Icons.search, color: Colors.white60),
+                        SizedBox(width: 10),
                         Text(
-                          tabs[i].$1,
-                          style: TextStyle(
-                            color: selected ? Colors.white : Colors.white60,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 14,
-                          ),
+                          "Search...",
+                          style: TextStyle(color: Colors.white54, fontSize: 14),
                         ),
-                        const SizedBox(height: 6),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: selected ? 28 : 0,
-                          height: 3,
-                          decoration: BoxDecoration(
-                            color: selected ? Colors.white : Colors.transparent,
-                            borderRadius: BorderRadius.circular(99),
-                          ),
-                        )
                       ],
                     ),
-                  );
-                },
-                separatorBuilder: (_, __) => const SizedBox(width: 24),
-                itemCount: tabs.length,
-              ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Text(
+                    "DEV MODE",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ],
             ),
+          ),
 
-            const SizedBox(height: 10),
+          // ✅ Top tabs
+          SizedBox(
+            height: 44,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (_, i) {
+                final selected = i == tabIndex;
+                return InkWell(
+                  onTap: () => setState(() => tabIndex = i),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        tabs[i].$1,
+                        style: TextStyle(
+                          color: selected ? Colors.white : Colors.white60,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: selected ? 28 : 0,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: selected ? Colors.white : Colors.transparent,
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              separatorBuilder: (_, __) => const SizedBox(width: 24),
+              itemCount: tabs.length,
+            ),
+          ),
 
-            // ✅ category grid page
-            Expanded(
-              child: CommonGridPage(category: currentCategory),
-            )
-          ],
-        ),
+          const SizedBox(height: 10),
+
+          // ✅ Grid
+          Expanded(
+            child: CommonGridPage(category: currentCategory),
+          ),
+        ],
       ),
     );
   }

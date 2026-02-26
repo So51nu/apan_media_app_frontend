@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Apna Media',
-      home: LoginPage(),
+      home: LoginPage(), // LoginPage itself checks token and redirects to tabs
     );
   }
 }
