@@ -69,7 +69,7 @@ class _PaywallPageState extends State<PaywallPage> {
         "amount": amount,
         "currency": "INR",
         "name": "Apna Media",
-        "description": "1-day pass",
+        "description": "1-day only at ",
         "order_id": orderId,
         "prefill": {"email": ""}, // optional
         "theme": {"color": "#ff3b30"},
@@ -159,7 +159,7 @@ class _PaywallPageState extends State<PaywallPage> {
                 border: Border.all(color: Colors.white12),
               ),
               child: const Text(
-                "1 videos free done ✅\nTo watch more, buy 1-day .",
+                "2 videos free done ✅\nTo watch more, buy 1-day .",
                 style: TextStyle(color: Colors.white70, height: 1.3),
               ),
             ),
@@ -167,7 +167,7 @@ class _PaywallPageState extends State<PaywallPage> {
             const SizedBox(height: 16),
 
             _Btn(
-              text: disabled ? "Please wait..." : "Buy 1-day pass ₹4",
+              text: disabled ? "Please wait..." : "Buy 1-day only at ₹4",
               onTap: disabled ? null : () => _buyPass(400),
             ),
             const SizedBox(height: 10),

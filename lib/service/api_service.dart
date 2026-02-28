@@ -95,7 +95,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // 🔁 CHANGE THIS TO YOUR LAPTOP IP
-  static const String baseUrl = "http://192.168.1.9:8000";
+  static const String baseUrl = "https://apna.app.backend.clickconnectmedia.cloud";
 
   // Keys
   static const _kAccess = "access_token";
